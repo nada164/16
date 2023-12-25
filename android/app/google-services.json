@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1022769972524",
+    "project_id": "loginpage-90212",
+    "storage_bucket": "loginpage-90212.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1022769972524:android:5f74dc6e5296664bc75889",
+        "android_client_info": {
+          "package_name": "com.example.nadaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuTcmrY5AsiQ-o0ddBB-EssqmIyYlRdL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1022769972524:android:0dc4e737f5c3c26ec75889",
+        "android_client_info": {
+          "package_name": "com.example.saharapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuTcmrY5AsiQ-o0ddBB-EssqmIyYlRdL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
