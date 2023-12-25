@@ -1,176 +1,147 @@
-import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:saharapp/pages/login.dart';
+import 'package:o3d/o3d.dart';
+import 'package:logger/logger.dart';
+import 'package:camera/camera.dart';
 
-void main() {
-  runApp(Mycamera());
+List<CameraDescription> camList = [];
+final Logger _logger = Logger(); // Create a logger instance
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    camList = await availableCameras();
+    if (camList.isEmpty) {
+      _logger.w('No available cameras detected.');
+    } else {
+      _logger.i('Available cameras detected: $camList');
+    }
+    runApp(Mycamera());
+  } catch (e) {
+    _logger.e('Error initializing cameras: $e');
+  }
 }
 
 class Mycamera extends StatelessWidget {
-  Mycamera();
+  const Mycamera({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Camera & Gallery",
-      theme: ThemeData(primarySwatch: Colors.purple),
-      home: CameraPage(),
+      title: 'Camera App',
+      theme: ThemeData(
+        primarySwatch:  Colors.blue,
+      ),
+      home: const CameraScreen(
+        key: Key('camera_screen'),
+      ),
     );
   }
 }
 
-class CameraPage extends StatefulWidget {
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({super.key});
+
   @override
-  _CameraPageState createState() => _CameraPageState();
+  _CameraScreenState createState() => _CameraScreenState();
 }
 
-class _CameraPageState extends State<CameraPage> {
-  File? _imageFile;
-  final ImagePicker _picker = ImagePicker();
+class _CameraScreenState extends State<CameraScreen> {
+  late CameraController _cameraController;
+  bool _isCameraInitialized = false;
+  bool _isModelHidden = false;
 
-  Future<void> _getImage(ImageSource source) async {
-    try {
-      final pickedFile = await _picker.getImage(source: source);
-      setState(() {
-        if (pickedFile != null) {
-          _imageFile = File(pickedFile.path);
-        } else {
-          print('No image selected');
-        }
-      });
-    } catch (e) {
-      print('Error picking image: $e');
-    }
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+  }
+
+  @override
+  void dispose() {
+    _cameraController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    _cameraController = CameraController(cameras[0], ResolutionPreset.medium);
+
+    await _cameraController.initialize();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isCameraInitialized = true;
+    });
+  }
+
+  void _toggleModelVisibility() {
+    setState(() {
+      _isModelHidden = !_isModelHidden;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isCameraInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Camera Loading...'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Look at objects as if they are realistic',
-            style: TextStyle(
-              color: Colors.purple,
-              fontFamily: "myfont",
-              fontSize: 30,
-              fontWeight: FontWeight.w200,
-            ),
-          ),
+        title: const Text(
+          'Look at object as if they are realistic',style: TextStyle(color: Colors.white, fontSize: 18),
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () async {
-            await FirebaseAuth.instance
-                .signOut(); // Go back to the previous page (login page)
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil('login', (route) => false);
-          },
-        ),
+        backgroundColor:
+            Color.fromARGB(255, 173, 90, 194), // Add this line
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height: 10),
-              _imageFile != null
-                  ? Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.file(
-                          _imageFile!,
-                          height: 200,
-                        ),
-                        Icon(
-                          Icons.camera,
-                          size: 50,
-                          color: Color.fromARGB(255, 186, 125, 201),
-                        ),
-                      ],
-                    )
-                  : Container(
-                      height: 300,
-                      width: 350,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color.fromARGB(255, 135, 45, 143)
-                                .withOpacity(0.6),
-                            spreadRadius: 3,
-                            blurRadius: 7,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              color: Colors.grey[300],
-                            ),
-                            Icon(
-                              Icons.camera,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-              SizedBox(height: 22),
-              SizedBox(
-                height: 55,
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: () => _getImage(ImageSource.camera),
-                  child: Text(
-                    'Take picture',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple[100],
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    elevation: 3,
-                    shadowColor: Color.fromARGB(255, 52, 10, 59),
-                  ),
-                ),
+      body: Container(
+        color: Color.fromARGB(83, 188, 175, 194),
+        child: Stack(
+          children: [
+            Center(
+              child: AspectRatio(
+                 aspectRatio:
+                    3 / 4, // Adjust the aspect ratio to your preference
+                child: CameraPreview(_cameraController),
               ),
-              SizedBox(height: 25),
-              SizedBox(
-                height: 55,
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: () => _getImage(ImageSource.gallery),
-                  child: Text(
-                    'Upload from gallery',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple,
+            ),
+            Visibility(
+              visible: !_isModelHidden,
+              child: const Center(child: O3D.asset(src: 'assets/forest_house.glb')),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.sizeOf(context).height * 0.02,
+                  ),
+                  ElevatedButton(
+                    onPressed: _toggleModelVisibility,
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Color.fromARGB(255, 199, 96, 224)),
                     ),
+                    child: Text(_isModelHidden ? 'Show Model' : 'Hide Model'),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple[100],
-                    elevation: 3,
-                    shadowColor: Color.fromARGB(255, 52, 10, 59),
-                  ),
-                ),
+                  const SizedBox(
+                    height: 35,
+                  )
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+

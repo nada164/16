@@ -165,7 +165,7 @@ void _showErrorDialog(String errorMessage) {
                             Navigator.pushNamed(context, '/Signup');
                           },
                           child: Text(
-                            'SignUp',
+                            'Sign Up',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),

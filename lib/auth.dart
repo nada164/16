@@ -18,7 +18,7 @@ class _AuthState extends State<Auth> {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return CameraPage();
+          return Mycamera();
         } else {
           return Login();
         }

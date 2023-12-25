@@ -1,7 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use
-
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -201,7 +197,7 @@ class _SignUpState extends State<SignUp> {
                               horizontal: 77, vertical: 13),
                           child: Center(
                             child: Text(
-                              'SignUp',
+                              'Sign Up',
                               style: TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,

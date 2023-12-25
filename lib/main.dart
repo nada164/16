@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         '/':(context) => const Auth(),
         '/Signup':(context) => const SignUp(),
         '/login':(context) => const Login(),
-        //'/camerapage':(context) =>  Mycamera(),
+        // '/camerapage':(context) =>  Mycamera(),
         
      },
     );
